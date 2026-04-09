@@ -12,9 +12,12 @@ import styled from 'styled-components'
 import { fretboardConfig } from './config'
 import { Fret } from './Fret'
 import { FretMarkerItem } from './FretMarkerItem'
+import { FretNumbers } from './FretNumbers'
 import { Nut } from './Nut'
 import { VisibleFretsProvider } from './state/visibleFrets'
 import { String } from './String'
+
+const Wrapper = styled.div``
 
 const Neck = styled.div`
   height: ${toSizeUnit(fretboardConfig.height)};
@@ -33,6 +36,22 @@ const Frets = styled.div`
   background: ${getColor('foreground')};
 `
 
+const NumbersRow = styled.div`
+  ${hStack()};
+`
+
+const NumbersSpacer = styled.div`
+  width: ${toSizeUnit(
+    fretboardConfig.openNotesSectionWidth + fretboardConfig.nutWidth,
+  )};
+  flex-shrink: 0;
+`
+
+const NumbersContainer = styled.div`
+  flex: 1;
+  position: relative;
+`
+
 type FretboardProps = {
   visibleFrets?: Interval
 } & ChildrenProp
@@ -44,6 +63,7 @@ export const Fretboard = ({
   visibleFrets = defaultVisibleFrets,
 }: FretboardProps) => {
   const showNut = visibleFrets.start < 1
+  const showOpenNotes = visibleFrets.start < 0
 
   const frets = intervalRange(
     showNut
@@ -55,24 +75,32 @@ export const Fretboard = ({
   )
 
   return (
-    <Neck>
-      <VisibleFretsProvider value={visibleFrets}>
-        {visibleFrets.start < 0 && <OpenNotes />}
-        {showNut && <Nut />}
-        <Frets>
-          {frets.map((index) => (
-            <Fret key={index} index={index} />
-          ))}
-          {getFretMarkers(visibleFrets).map((value) => (
-            <FretMarkerItem key={value.index} value={value} />
-          ))}
+    <VisibleFretsProvider value={visibleFrets}>
+      <Wrapper>
+        <NumbersRow>
+          {(showOpenNotes || showNut) && <NumbersSpacer />}
+          <NumbersContainer>
+            <FretNumbers />
+          </NumbersContainer>
+        </NumbersRow>
+        <Neck>
+          {showOpenNotes && <OpenNotes />}
+          {showNut && <Nut />}
+          <Frets>
+            {frets.map((index) => (
+              <Fret key={index} index={index} />
+            ))}
+            {getFretMarkers(visibleFrets).map((value) => (
+              <FretMarkerItem key={value.index} value={value} />
+            ))}
 
-          {range(standardTuning.length).map((index) => (
-            <String key={index} index={index} />
-          ))}
-          {children}
-        </Frets>
-      </VisibleFretsProvider>
-    </Neck>
+            {range(standardTuning.length).map((index) => (
+              <String key={index} index={index} />
+            ))}
+            {children}
+          </Frets>
+        </Neck>
+      </Wrapper>
+    </VisibleFretsProvider>
   )
 }

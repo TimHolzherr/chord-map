@@ -1,3 +1,3 @@
-import { NotesPage } from '../notes/NotesPage'
+import { DegreesPage } from '../degrees/DegreesPage'
 
-export default NotesPage
+export default DegreesPage

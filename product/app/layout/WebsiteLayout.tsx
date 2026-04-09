@@ -54,6 +54,10 @@ const items = [
     }),
   },
   {
+    name: 'Degrees',
+    href: '/degrees',
+  },
+  {
     name: 'Songs',
     href: '/songs',
   },

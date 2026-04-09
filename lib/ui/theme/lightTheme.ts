@@ -34,8 +34,8 @@ export const lightTheme: DefaultTheme = {
     overlay: new HSLA(0, 0, 0, 0.4),
 
     getLabelColor: generateLabelColorGetter({
-      saturation: 64,
-      lightness: 64,
+      saturation: 70,
+      lightness: 42,
     }),
 
     contrast: new HSLA(0, 0, 0),

@@ -32,7 +32,7 @@ const Container = styled.div<KindProp<NoteKind>>`
   ${centerContent};
   font-weight: 600;
 
-  ${({ kind, theme: { colors } }) => {
+  ${({ kind, theme: { colors, name: themeName } }) => {
     const color = match(kind, {
       regular: () => colors.getLabelColor(3),
       primary: () => colors.success,
@@ -42,7 +42,15 @@ const Container = styled.div<KindProp<NoteKind>>`
     if (kind === 'primary') {
       return css`
         background: ${color.toCssValue()};
-        color: ${getColor('background')};
+        color: ${colors.white.toCssValue()};
+      `
+    }
+
+    if (themeName === 'light') {
+      return css`
+        border: 2px solid ${color.getVariant({ l: (l) => l * 0.55 }).toCssValue()};
+        background: ${color.getVariant({ l: () => 93, s: (s) => s * 0.4 }).toCssValue()};
+        color: ${color.getVariant({ l: (l) => l * 0.35 }).toCssValue()};
       `
     }
 
