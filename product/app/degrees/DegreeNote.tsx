@@ -6,9 +6,9 @@ import { HSLA } from '@lib/ui/colors/HSLA'
 import { PositionAbsolutelyByCenter } from '@lib/ui/layout/PositionAbsolutelyByCenter'
 import { toPercents } from '@lib/utils/toPercents'
 import { getFretPosition } from '@product/core/guitar/getFretPosition'
-import { chromaticNotesNames } from '@product/core/note'
 import { getNoteFromPosition } from '@product/core/note/getNoteFromPosition'
 import { NotePosition } from '@product/core/note/NotePosition'
+import { getDegreeNoteName } from '@product/core/note/spelledNote'
 import styled, { css } from 'styled-components'
 
 import { totalFrets } from '../guitar/config'
@@ -16,7 +16,13 @@ import { fretboardConfig } from '../guitar/fretboard/config'
 import { useVisibleFrets } from '../guitar/fretboard/state/visibleFrets'
 import { getStringPosition } from '../guitar/fretboard/utils/getStringPosition'
 
-import { DegreeSelection, degreeHues, getDegreeName } from './state/degrees'
+import { NoteText } from './NoteText'
+import {
+  DegreeSelection,
+  degreeHues,
+  getDegreeName,
+  useDegrees,
+} from './state/degrees'
 
 type DegreeNoteProps = NotePosition & {
   selection: DegreeSelection
@@ -68,9 +74,16 @@ const DegreeBadge = styled.span`
 
 export const DegreeNote = ({ string, fret, selection }: DegreeNoteProps) => {
   const visibleFrets = useVisibleFrets()
+  const { rootNote, tonality } = useDegrees()
 
   const top = toPercents(getStringPosition(string))
   const value = getNoteFromPosition({ position: { string, fret } })
+  const spelledName = getDegreeNoteName({
+    rootNote,
+    tonality,
+    degreeIndex: selection.degree,
+    noteSemitone: value,
+  })
 
   const left = `calc(${
     fret === -1
@@ -90,8 +103,12 @@ export const DegreeNote = ({ string, fret, selection }: DegreeNoteProps) => {
         $isRoot={isRoot}
         $hue={degreeHues[selection.degree]}
       >
-        <span>{chromaticNotesNames[value]}</span>
-        <DegreeBadge>{getDegreeName(selection)}</DegreeBadge>
+        <span>
+          <NoteText>{spelledName}</NoteText>
+        </span>
+        <DegreeBadge>
+          <NoteText>{getDegreeName(selection)}</NoteText>
+        </DegreeBadge>
       </Container>
     </PositionAbsolutelyByCenter>
   )

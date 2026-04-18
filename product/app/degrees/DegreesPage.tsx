@@ -1,10 +1,14 @@
 import { VStack, HStack } from '@lib/ui/css/stack'
 import { Button } from '@lib/ui/buttons/Button'
-import { chromaticNotesNames, chromaticNotesNumber } from '@product/core/note'
+import { chromaticNotesNumber } from '@product/core/note'
+import {
+  getDegreeNoteName,
+  getRootNoteName,
+} from '@product/core/note/spelledNote'
 import { getScaleNotes } from '@product/core/scale/getScaleNotes'
 import { scalePatterns } from '@product/core/scale/ScaleType'
 import { tonalityNames } from '@product/core/tonality'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import styled from 'styled-components'
 
 import { PageContainer } from '../layout/PageContainer'
@@ -12,6 +16,7 @@ import { PageTitle } from '../ui/PageTitle'
 
 import { DegreesManager } from './DegreesManager'
 import { DegreesFretboard } from './DegreesFretboard'
+import { NoteText } from './NoteText'
 import { PrintStyles } from './PrintStyles'
 import {
   DegreesProvider,
@@ -53,12 +58,28 @@ export const DegreesPage = () => {
       : natural
   }
 
-  const titleParts = selectedDegrees.map(
-    (sel) =>
-      `${getDegreeName(sel)} (${chromaticNotesNames[getNoteForSelection(sel)]})`,
-  )
+  const getSpelledName = (sel: { degree: number; flat: boolean }) =>
+    getDegreeNoteName({
+      rootNote,
+      tonality,
+      degreeIndex: sel.degree,
+      noteSemitone: getNoteForSelection(sel),
+    })
 
-  const printTitle = `${chromaticNotesNames[rootNote]} ${tonalityNames[tonality]} — ${titleParts.join(', ')}`
+  const printTitle = (
+    <>
+      <NoteText>{getRootNoteName(rootNote, tonality)}</NoteText>{' '}
+      {tonalityNames[tonality]}
+      {selectedDegrees.length > 0 && ' — '}
+      {selectedDegrees.map((sel, i) => (
+        <Fragment key={getDegreeKey(sel)}>
+          {i > 0 && ', '}
+          <NoteText>{getDegreeName(sel)}</NoteText> (
+          <NoteText>{getSpelledName(sel)}</NoteText>)
+        </Fragment>
+      ))}
+    </>
+  )
 
   return (
     <DegreesProvider value={state}>
@@ -82,8 +103,8 @@ export const DegreesPage = () => {
                       data-root={isRoot ? 'true' : 'false'}
                     />
                     <span>
-                      {getDegreeName(sel)} —{' '}
-                      {chromaticNotesNames[getNoteForSelection(sel)]}
+                      <NoteText>{getDegreeName(sel)}</NoteText> —{' '}
+                      <NoteText>{getSpelledName(sel)}</NoteText>
                     </span>
                   </div>
                 )

@@ -5,7 +5,11 @@ import { InputLabel } from '@lib/ui/inputs/InputLabel'
 import { MinimalisticToggle } from '@lib/ui/inputs/MinimalisticToggle'
 import { range } from '@lib/utils/array/range'
 import { HSLA } from '@lib/ui/colors/HSLA'
-import { chromaticNotesNames, chromaticNotesNumber } from '@product/core/note'
+import { chromaticNotesNumber } from '@product/core/note'
+import {
+  getDegreeNoteName,
+  getRootNoteName,
+} from '@product/core/note/spelledNote'
 import { getScaleNotes } from '@product/core/scale/getScaleNotes'
 import { scalePatterns } from '@product/core/scale/ScaleType'
 import { tonalityNames, tonalities } from '@product/core/tonality'
@@ -15,6 +19,7 @@ import { borderRadius } from '@lib/ui/css/borderRadius'
 import { interactive } from '@lib/ui/css/interactive'
 import { horizontalPadding } from '@lib/ui/css/horizontalPadding'
 
+import { NoteText } from './NoteText'
 import {
   DegreeSelection,
   degreeHues,
@@ -101,21 +106,28 @@ export const DegreesManager = ({ value, onChange }: DegreesManagerProps) => {
       : natural
   }
 
+  const getSpelledName = (d: DegreeSelection) =>
+    getDegreeNoteName({
+      rootNote,
+      tonality,
+      degreeIndex: d.degree,
+      noteSemitone: getNoteForDegree(d),
+    })
+
   return (
     <VStack alignItems="center">
       <VStack style={{ maxWidth: 560 }} gap={20} alignItems="start">
         <InputContainer>
-          <InputLabel>Key: {chromaticNotesNames[rootNote]}</InputLabel>
+          <InputLabel>
+            Key: <NoteText>{getRootNoteName(rootNote, tonality)}</NoteText>
+          </InputLabel>
           <GroupedRadioInput
-            value={chromaticNotesNames[rootNote]}
-            onChange={(noteName) => {
-              const index = chromaticNotesNames.indexOf(noteName)
-              onChange({ ...value, rootNote: index })
-            }}
-            options={range(chromaticNotesNumber).map(
-              (index) => chromaticNotesNames[index],
+            value={rootNote}
+            onChange={(index) => onChange({ ...value, rootNote: index })}
+            options={range(chromaticNotesNumber)}
+            renderOption={(index) => (
+              <NoteText>{getRootNoteName(index, tonality)}</NoteText>
             )}
-            renderOption={(noteName) => noteName}
           />
         </InputContainer>
         <InputContainer>
@@ -139,8 +151,10 @@ export const DegreesManager = ({ value, onChange }: DegreesManagerProps) => {
                   $hue={degreeHues[deg]}
                   onClick={() => toggleDegree(sel)}
                 >
-                  {degreeNames[deg]} ({chromaticNotesNames[getNoteForDegree(sel)]}
-                  )
+                  <span>
+                    {degreeNames[deg]} (
+                    <NoteText>{getSpelledName(sel)}</NoteText>)
+                  </span>
                 </DegreeButton>
               )
             })}
@@ -165,8 +179,10 @@ export const DegreesManager = ({ value, onChange }: DegreesManagerProps) => {
                   $hue={degreeHues[deg]}
                   onClick={() => toggleDegree(sel)}
                 >
-                  {flatDegreeNames[deg]} (
-                  {chromaticNotesNames[getNoteForDegree(sel)]})
+                  <span>
+                    <NoteText>{flatDegreeNames[deg]}</NoteText> (
+                    <NoteText>{getSpelledName(sel)}</NoteText>)
+                  </span>
                 </DegreeButton>
               )
             })}
